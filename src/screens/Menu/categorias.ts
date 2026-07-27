@@ -13,3 +13,10 @@ export const CATEGORIA_LABEL: Record<CategoriaProducto, string> = {
   coctel: 'Cócteles',
   adicion: 'Adiciones',
 };
+
+export const CATEGORIA_ICONO: Record<CategoriaProducto, string> = {
+  plato_fuerte: '🍔',
+  bebida: '🥤',
+  coctel: '🍹',
+  adicion: '🍟',
+};

@@ -6,6 +6,7 @@ export interface Producto {
   categoria: CategoriaProducto;
   precio: number;
   activo: boolean;
+  imagenUri: string | null;
   updatedAt: string;
   syncedAt: string | null;
 }
@@ -14,6 +15,7 @@ export interface CrearProductoInput {
   nombre: string;
   categoria: CategoriaProducto;
   precio: number;
+  imagenUri?: string | null;
 }
 
 export interface ActualizarProductoInput {
@@ -21,4 +23,5 @@ export interface ActualizarProductoInput {
   categoria?: CategoriaProducto;
   precio?: number;
   activo?: boolean;
+  imagenUri?: string | null;
 }

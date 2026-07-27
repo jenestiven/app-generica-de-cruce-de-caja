@@ -13,6 +13,7 @@ interface ProductoRow {
   categoria: Producto['categoria'];
   precio: number;
   activo: number;
+  imagen_uri: string | null;
   updated_at: string;
   synced_at: string | null;
 }
@@ -24,6 +25,7 @@ function mapRowToProducto(row: ProductoRow): Producto {
     categoria: row.categoria,
     precio: row.precio,
     activo: row.activo === 1,
+    imagenUri: row.imagen_uri,
     updatedAt: row.updated_at,
     syncedAt: row.synced_at,
   };
@@ -39,11 +41,12 @@ export function getProductos(): Producto[] {
 export function crearProducto(data: CrearProductoInput): Producto {
   const id = Crypto.randomUUID();
   const updatedAt = new Date().toISOString();
+  const imagenUri = data.imagenUri ?? null;
 
   db.runSync(
-    `INSERT INTO productos (id, nombre, categoria, precio, activo, updated_at, synced_at)
-     VALUES (?, ?, ?, ?, 1, ?, NULL)`,
-    [id, data.nombre, data.categoria, data.precio, updatedAt]
+    `INSERT INTO productos (id, nombre, categoria, precio, activo, imagen_uri, updated_at, synced_at)
+     VALUES (?, ?, ?, ?, 1, ?, ?, NULL)`,
+    [id, data.nombre, data.categoria, data.precio, imagenUri, updatedAt]
   );
 
   return {
@@ -52,6 +55,7 @@ export function crearProducto(data: CrearProductoInput): Producto {
     categoria: data.categoria,
     precio: data.precio,
     activo: true,
+    imagenUri,
     updatedAt,
     syncedAt: null,
   };
@@ -62,7 +66,7 @@ export function actualizarProducto(
   data: ActualizarProductoInput
 ): void {
   const campos: string[] = [];
-  const valores: (string | number)[] = [];
+  const valores: (string | number | null)[] = [];
 
   if (data.nombre !== undefined) {
     campos.push('nombre = ?');
@@ -79,6 +83,10 @@ export function actualizarProducto(
   if (data.activo !== undefined) {
     campos.push('activo = ?');
     valores.push(data.activo ? 1 : 0);
+  }
+  if (data.imagenUri !== undefined) {
+    campos.push('imagen_uri = ?');
+    valores.push(data.imagenUri);
   }
 
   if (campos.length === 0) {

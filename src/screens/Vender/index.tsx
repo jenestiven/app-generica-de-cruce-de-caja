@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 
+import ProductoImagen from '../../components/ui/ProductoImagen';
 import { getCajaDeHoy } from '../../db/cierresCaja';
 import { getProductos } from '../../db/productos';
 import { crearVenta, getTotalVendidoHoy } from '../../db/ventas';
@@ -125,7 +126,14 @@ export default function VenderScreen() {
         )}
         renderItem={({ item }) => (
           <Pressable style={styles.producto} onPress={() => handleAgregarProducto(item)}>
-            <Text style={styles.productoNombre}>{item.nombre}</Text>
+            <ProductoImagen
+              imagenUri={item.imagenUri}
+              categoria={item.categoria}
+              style={styles.productoImagen}
+            />
+            <Text style={styles.productoNombre} numberOfLines={1}>
+              {item.nombre}
+            </Text>
             <Text style={styles.productoPrecio}>{formatPrecio(item.precio)}</Text>
           </Pressable>
         )}
@@ -200,10 +208,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#eee',
   },
+  productoImagen: {
+    marginRight: 12,
+  },
   productoNombre: {
+    flex: 1,
     fontSize: 16,
     fontWeight: '600',
     color: '#111',
+    marginRight: 12,
   },
   productoPrecio: {
     fontSize: 14,

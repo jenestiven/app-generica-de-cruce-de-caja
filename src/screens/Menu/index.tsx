@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 
+import ProductoImagen from '../../components/ui/ProductoImagen';
 import { actualizarProducto, crearProducto, getProductos } from '../../db/productos';
 import type { Producto } from '../../types/producto';
 import { CATEGORIA_LABEL, CATEGORIA_ORDEN } from './categorias';
@@ -89,6 +90,11 @@ export default function MenuScreen() {
             style={[styles.item, !item.activo && styles.itemInactivo]}
             onPress={() => handleEditarProducto(item)}
           >
+            <ProductoImagen
+              imagenUri={item.imagenUri}
+              categoria={item.categoria}
+              style={styles.itemImagen}
+            />
             <View style={styles.itemInfo}>
               <Text style={styles.itemNombre}>{item.nombre}</Text>
               <Text style={styles.itemPrecio}>{formatPrecio(item.precio)}</Text>
@@ -150,6 +156,9 @@ const styles = StyleSheet.create({
   },
   itemInactivo: {
     opacity: 0.45,
+  },
+  itemImagen: {
+    marginRight: 12,
   },
   itemInfo: {
     flex: 1,

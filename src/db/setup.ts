@@ -13,6 +13,7 @@ export function initDatabase(): void {
       categoria TEXT NOT NULL CHECK (categoria IN ('plato_fuerte', 'bebida', 'coctel', 'adicion')),
       precio REAL NOT NULL,
       activo INTEGER NOT NULL DEFAULT 1,
+      imagen_uri TEXT,
       updated_at TEXT NOT NULL,
       synced_at TEXT
     );
@@ -57,6 +58,7 @@ export function initDatabase(): void {
   `);
 
   migrarColumnasCierresCaja();
+  migrarColumnasProductos();
 }
 
 const COLUMNAS_ARQUEO_CIERRES_CAJA: Array<{ nombre: string; definicion: string }> = [
@@ -81,5 +83,17 @@ function migrarColumnasCierresCaja(): void {
     if (!columnasExistentes.has(columna.nombre)) {
       db.execSync(`ALTER TABLE cierres_caja ADD COLUMN ${columna.nombre} ${columna.definicion};`);
     }
+  }
+}
+
+// productos viene de sprints anteriores sin imagen_uri: se agrega con ALTER TABLE
+// para no perder los productos ya registrados.
+function migrarColumnasProductos(): void {
+  const columnasExistentes = new Set(
+    db.getAllSync<{ name: string }>('PRAGMA table_info(productos)').map((columna) => columna.name)
+  );
+
+  if (!columnasExistentes.has('imagen_uri')) {
+    db.execSync('ALTER TABLE productos ADD COLUMN imagen_uri TEXT;');
   }
 }
