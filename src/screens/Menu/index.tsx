@@ -10,8 +10,13 @@ import {
   View,
 } from 'react-native';
 
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
 import ProductoImagen from '../../components/ui/ProductoImagen';
 import { actualizarProducto, crearProducto, getProductos } from '../../db/productos';
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import type { Producto } from '../../types/producto';
 import { CATEGORIA_LABEL, CATEGORIA_ORDEN } from './categorias';
 import { formatPrecio } from './formatPrecio';
@@ -86,20 +91,26 @@ export default function MenuScreen() {
           <Text style={styles.seccionTitulo}>{section.title}</Text>
         )}
         renderItem={({ item }) => (
-          <Pressable
-            style={[styles.item, !item.activo && styles.itemInactivo]}
-            onPress={() => handleEditarProducto(item)}
-          >
-            <ProductoImagen
-              imagenUri={item.imagenUri}
-              categoria={item.categoria}
-              style={styles.itemImagen}
-            />
-            <View style={styles.itemInfo}>
-              <Text style={styles.itemNombre}>{item.nombre}</Text>
-              <Text style={styles.itemPrecio}>{formatPrecio(item.precio)}</Text>
-            </View>
-            <Switch value={item.activo} onValueChange={() => handleToggleActivo(item)} />
+          <Pressable onPress={() => handleEditarProducto(item)}>
+            <Card style={[styles.item, !item.activo && styles.itemInactivo]}>
+              <View style={styles.itemRow}>
+                <ProductoImagen
+                  imagenUri={item.imagenUri}
+                  categoria={item.categoria}
+                  style={styles.itemImagen}
+                />
+                <View style={styles.itemInfo}>
+                  <Text style={styles.itemNombre}>{item.nombre}</Text>
+                  <Text style={styles.itemPrecio}>{formatPrecio(item.precio)}</Text>
+                </View>
+                <Switch
+                  value={item.activo}
+                  onValueChange={() => handleToggleActivo(item)}
+                  trackColor={{ false: colors.border, true: colors.primary }}
+                  thumbColor="#FFFFFF"
+                />
+              </View>
+            </Card>
           </Pressable>
         )}
         ListEmptyComponent={
@@ -107,9 +118,9 @@ export default function MenuScreen() {
         }
       />
 
-      <Pressable style={styles.fab} onPress={handleAgregarProducto}>
-        <Text style={styles.fabTexto}>+</Text>
-      </Pressable>
+      <View style={styles.fabContainer} pointerEvents="box-none">
+        <Button onPress={handleAgregarProducto}>+ Agregar</Button>
+      </View>
 
       <Modal visible={modalVisible} animationType="slide" transparent onRequestClose={handleCerrarModal}>
         <View style={styles.modalFondo}>
@@ -130,75 +141,56 @@ export default function MenuScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   listaContenido: {
-    padding: 16,
+    padding: spacing.lg,
     paddingBottom: 96,
   },
   seccionTitulo: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 16,
-    marginBottom: 8,
-    color: '#333',
+    ...typography.label,
+    color: colors.textSecondary,
+    textTransform: 'uppercase',
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
   },
   item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#eee',
+    marginBottom: spacing.sm,
   },
   itemInactivo: {
     opacity: 0.45,
   },
+  itemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   itemImagen: {
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   itemInfo: {
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   itemNombre: {
-    fontSize: 16,
+    ...typography.cardText,
     fontWeight: '600',
-    color: '#111',
+    color: colors.textPrimary,
   },
   itemPrecio: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 2,
+    ...typography.label,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
   },
   vacio: {
+    ...typography.cardText,
     textAlign: 'center',
-    color: '#777',
+    color: colors.textSecondary,
     marginTop: 40,
   },
-  fab: {
+  fabContainer: {
     position: 'absolute',
-    right: 20,
-    bottom: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#2563eb',
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  fabTexto: {
-    color: '#fff',
-    fontSize: 28,
-    lineHeight: 30,
+    right: spacing.lg,
+    bottom: spacing.xl,
   },
   modalFondo: {
     flex: 1,
@@ -206,7 +198,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   modalContenido: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
   },

@@ -2,10 +2,14 @@ import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 
+import Card from '../../components/ui/Card';
 import ProductoImagen from '../../components/ui/ProductoImagen';
 import { getCajaDeHoy } from '../../db/cierresCaja';
 import { getProductos } from '../../db/productos';
 import { crearVenta, getTotalVendidoHoy } from '../../db/ventas';
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import type { CierreCaja } from '../../types/caja';
 import type { Producto } from '../../types/producto';
 import type { MetodoPago, TotalVendidoHoy } from '../../types/venta';
@@ -125,16 +129,20 @@ export default function VenderScreen() {
           <Text style={styles.seccionTitulo}>{section.title}</Text>
         )}
         renderItem={({ item }) => (
-          <Pressable style={styles.producto} onPress={() => handleAgregarProducto(item)}>
-            <ProductoImagen
-              imagenUri={item.imagenUri}
-              categoria={item.categoria}
-              style={styles.productoImagen}
-            />
-            <Text style={styles.productoNombre} numberOfLines={1}>
-              {item.nombre}
-            </Text>
-            <Text style={styles.productoPrecio}>{formatPrecio(item.precio)}</Text>
+          <Pressable onPress={() => handleAgregarProducto(item)}>
+            <Card style={styles.producto}>
+              <View style={styles.productoRow}>
+                <ProductoImagen
+                  imagenUri={item.imagenUri}
+                  categoria={item.categoria}
+                  style={styles.productoImagen}
+                />
+                <Text style={styles.productoNombre} numberOfLines={1}>
+                  {item.nombre}
+                </Text>
+                <Text style={styles.productoPrecio}>{formatPrecio(item.precio)}</Text>
+              </View>
+            </Card>
           </Pressable>
         )}
         ListEmptyComponent={
@@ -163,68 +171,66 @@ export default function VenderScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   resumenHoy: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 10,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm + spacing.xs,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    backgroundColor: '#fff',
+    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
   },
   resumenTotal: {
-    fontSize: 16,
+    ...typography.cardText,
     fontWeight: '700',
-    color: '#111',
+    color: colors.textPrimary,
   },
   resumenDesglose: {
-    fontSize: 13,
-    color: '#555',
-    marginTop: 2,
+    ...typography.label,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
   },
   lista: {
     flex: 1,
   },
   listaContenido: {
-    padding: 16,
-    paddingBottom: 24,
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   seccionTitulo: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 16,
-    marginBottom: 8,
-    color: '#333',
+    ...typography.label,
+    color: colors.textSecondary,
+    textTransform: 'uppercase',
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
   },
   producto: {
+    marginBottom: spacing.sm,
+  },
+  productoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#eee',
   },
   productoImagen: {
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   productoNombre: {
-    flex: 1,
-    fontSize: 16,
+    ...typography.cardText,
     fontWeight: '600',
-    color: '#111',
-    marginRight: 12,
+    color: colors.textPrimary,
+    flex: 1,
+    marginRight: spacing.md,
   },
   productoPrecio: {
-    fontSize: 14,
-    color: '#555',
+    ...typography.label,
+    color: colors.textSecondary,
   },
   vacio: {
+    ...typography.cardText,
     textAlign: 'center',
-    color: '#777',
+    color: colors.textSecondary,
     marginTop: 40,
   },
 });

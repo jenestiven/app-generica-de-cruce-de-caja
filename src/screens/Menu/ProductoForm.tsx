@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import * as Crypto from 'expo-crypto';
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Image, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
+import Button from '../../components/ui/Button';
+import Chip from '../../components/ui/Chip';
+import Input from '../../components/ui/Input';
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import type { CategoriaProducto, Producto } from '../../types/producto';
 import { eliminarImagenProducto, seleccionarYGuardarImagen } from '../../utils/imagenes';
 import { CATEGORIA_ICONO, CATEGORIA_LABEL, CATEGORIA_ORDEN } from './categorias';
@@ -109,63 +107,55 @@ export default function ProductoForm({ producto, onSubmit, onCancel }: ProductoF
         </View>
       </View>
 
-      <Text style={styles.label}>Nombre</Text>
-      <TextInput
-        style={styles.input}
+      <Input
+        label="Nombre"
         value={nombre}
         onChangeText={setNombre}
         placeholder="Ej. Hamburguesa"
         autoCapitalize="sentences"
+        error={errorNombre ?? undefined}
       />
-      {errorNombre !== null && <Text style={styles.error}>{errorNombre}</Text>}
 
       <Text style={styles.label}>Categoría</Text>
       <View style={styles.categoriaRow}>
         {CATEGORIA_ORDEN.map((opcion) => (
-          <Pressable
+          <Chip
             key={opcion}
+            label={CATEGORIA_LABEL[opcion]}
+            selected={categoria === opcion}
             onPress={() => setCategoria(opcion)}
-            style={[
-              styles.categoriaChip,
-              categoria === opcion && styles.categoriaChipSeleccionada,
-            ]}
-          >
-            <Text
-              style={[
-                styles.categoriaChipTexto,
-                categoria === opcion && styles.categoriaChipTextoSeleccionada,
-              ]}
-            >
-              {CATEGORIA_LABEL[opcion]}
-            </Text>
-          </Pressable>
+          />
         ))}
       </View>
 
-      <Text style={styles.label}>Precio</Text>
-      <TextInput
-        style={styles.input}
+      <Input
+        label="Precio"
         value={precioTexto}
         onChangeText={setPrecioTexto}
         placeholder="Ej. 15000"
         keyboardType="numeric"
+        error={errorPrecio ?? undefined}
       />
-      {errorPrecio !== null && <Text style={styles.error}>{errorPrecio}</Text>}
 
       {esEdicion && (
         <View style={styles.activoRow}>
           <Text style={styles.label}>Producto activo</Text>
-          <Switch value={activo} onValueChange={setActivo} />
+          <Switch
+            value={activo}
+            onValueChange={setActivo}
+            trackColor={{ false: colors.border, true: colors.primary }}
+            thumbColor="#FFFFFF"
+          />
         </View>
       )}
 
       <View style={styles.acciones}>
-        <Pressable style={[styles.boton, styles.botonCancelar]} onPress={handleCancelar}>
-          <Text style={styles.botonCancelarTexto}>Cancelar</Text>
-        </Pressable>
-        <Pressable style={[styles.boton, styles.botonGuardar]} onPress={handleSubmit}>
-          <Text style={styles.botonGuardarTexto}>Guardar</Text>
-        </Pressable>
+        <Button variant="secondary" onPress={handleCancelar}>
+          Cancelar
+        </Button>
+        <Button variant="primary" onPress={handleSubmit}>
+          Guardar
+        </Button>
       </View>
     </View>
   );
@@ -173,23 +163,23 @@ export default function ProductoForm({ producto, onSubmit, onCancel }: ProductoF
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: spacing.xl,
   },
   titulo: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 16,
+    ...typography.screenTitle,
+    color: colors.textPrimary,
+    marginBottom: spacing.lg,
   },
   label: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 6,
-    marginTop: 12,
+    ...typography.label,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
+    marginTop: spacing.md,
   },
   imagenRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: spacing.md,
   },
   miniatura: {
     width: 72,
@@ -204,9 +194,9 @@ const styles = StyleSheet.create({
   miniaturaPlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#f1f1f1',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.border,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -215,82 +205,32 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   imagenAcciones: {
-    gap: 6,
+    gap: spacing.sm,
   },
   imagenAccionTexto: {
     fontSize: 14,
-    color: '#2563eb',
-    fontWeight: '600',
+    color: colors.primary,
+    fontWeight: 'bold',
   },
   imagenAccionQuitarTexto: {
     fontSize: 14,
-    color: '#dc2626',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
+    color: colors.danger,
   },
   categoriaRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-  },
-  categoriaChip: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  categoriaChipSeleccionada: {
-    backgroundColor: '#2563eb',
-    borderColor: '#2563eb',
-  },
-  categoriaChipTexto: {
-    fontSize: 14,
-    color: '#333',
-  },
-  categoriaChipTextoSeleccionada: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  error: {
-    color: '#dc2626',
-    marginTop: 6,
+    gap: spacing.sm,
   },
   activoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
   acciones: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 12,
-    marginTop: 24,
-  },
-  boton: {
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  botonCancelar: {
-    backgroundColor: '#f1f1f1',
-  },
-  botonCancelarTexto: {
-    color: '#333',
-    fontWeight: '500',
-  },
-  botonGuardar: {
-    backgroundColor: '#2563eb',
-  },
-  botonGuardarTexto: {
-    color: '#fff',
-    fontWeight: '600',
+    gap: spacing.md,
+    marginTop: spacing.xl,
   },
 });

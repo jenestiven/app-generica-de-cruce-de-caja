@@ -6,6 +6,7 @@ import GastosScreen from '../screens/Gastos';
 import CajaScreen from '../screens/Caja';
 import AnalisisScreen from '../screens/Analisis';
 import MenuScreen from '../screens/Menu';
+import { colors } from '../theme/colors';
 import type { RootTabParamList } from '../types/navigation';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -13,7 +14,13 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 export default function RootNavigator() {
   return (
     <NavigationContainer>
-      <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textSecondary,
+        }}
+      >
         <Tab.Screen name="Vender" component={VenderScreen} />
         <Tab.Screen name="Gastos" component={GastosScreen} />
         <Tab.Screen name="Caja" component={CajaScreen} />

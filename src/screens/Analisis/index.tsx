@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import HoyView from './HoyView';
 import MensualView from './MensualView';
 import SegmentedControl from './SegmentedControl';
@@ -31,11 +34,12 @@ export default function AnalisisScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   titulo: {
-    fontSize: 22,
-    fontWeight: '700',
+    ...typography.screenTitle,
+    color: colors.textPrimary,
     textAlign: 'center',
-    marginTop: 12,
+    marginTop: spacing.md,
   },
 });

@@ -1,5 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
+
 type Opcion<T extends string> = {
   value: T;
   label: string;
@@ -37,21 +41,21 @@ export default function SegmentedControl<T extends string>({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#eee',
+    backgroundColor: colors.surface,
     borderRadius: 10,
     padding: 3,
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 4,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
   },
   segmento: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
     borderRadius: 8,
     alignItems: 'center',
   },
   segmentoActivo: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -59,11 +63,11 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   texto: {
+    ...typography.label,
     fontSize: 14,
-    fontWeight: '600',
-    color: '#555',
+    color: colors.textSecondary,
   },
   textoActivo: {
-    color: '#111',
+    color: colors.primary,
   },
 });

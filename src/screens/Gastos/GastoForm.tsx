@@ -1,6 +1,12 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import Button from '../../components/ui/Button';
+import Chip from '../../components/ui/Chip';
+import Input from '../../components/ui/Input';
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import { METODOS_PAGO_SELECCIONABLES, METODO_PAGO_LABEL } from '../Vender/metodoPago';
 import type { CategoriaGasto } from '../../types/gasto';
 import type { MetodoPago } from '../../types/venta';
@@ -53,122 +59,75 @@ export default function GastoForm({ onGuardar }: GastoFormProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Descripción</Text>
-      <TextInput
-        style={styles.input}
+      <Input
+        label="Descripción"
         value={descripcion}
         onChangeText={setDescripcion}
         placeholder="Ej. Compra de carne"
         autoCapitalize="sentences"
+        error={errorDescripcion ?? undefined}
       />
-      {errorDescripcion !== null && <Text style={styles.error}>{errorDescripcion}</Text>}
 
       <Text style={styles.label}>Categoría</Text>
       <View style={styles.chipRow}>
         {CATEGORIA_GASTO_ORDEN.map((opcion) => (
-          <Pressable
+          <Chip
             key={opcion}
+            label={CATEGORIA_GASTO_LABEL[opcion]}
+            selected={categoria === opcion}
             onPress={() => setCategoria(opcion)}
-            style={[styles.chip, categoria === opcion && styles.chipSeleccionado]}
-          >
-            <Text style={[styles.chipTexto, categoria === opcion && styles.chipTextoSeleccionado]}>
-              {CATEGORIA_GASTO_LABEL[opcion]}
-            </Text>
-          </Pressable>
+          />
         ))}
       </View>
 
-      <Text style={styles.label}>Monto</Text>
-      <TextInput
-        style={styles.input}
+      <Input
+        label="Monto"
         value={montoTexto}
         onChangeText={setMontoTexto}
         placeholder="Ej. 20000"
         keyboardType="numeric"
+        error={errorMonto ?? undefined}
       />
-      {errorMonto !== null && <Text style={styles.error}>{errorMonto}</Text>}
 
       <Text style={styles.label}>Método de pago</Text>
       <View style={styles.chipRow}>
         {METODOS_PAGO_SELECCIONABLES.map((opcion) => (
-          <Pressable
+          <Chip
             key={opcion}
+            label={METODO_PAGO_LABEL[opcion]}
+            selected={metodoPago === opcion}
             onPress={() => setMetodoPago(opcion)}
-            style={[styles.chip, metodoPago === opcion && styles.chipSeleccionado]}
-          >
-            <Text style={[styles.chipTexto, metodoPago === opcion && styles.chipTextoSeleccionado]}>
-              {METODO_PAGO_LABEL[opcion]}
-            </Text>
-          </Pressable>
+          />
         ))}
       </View>
 
-      <Pressable style={styles.boton} onPress={handleGuardar}>
-        <Text style={styles.botonTexto}>Registrar gasto</Text>
-      </Pressable>
+      <View style={styles.botonContainer}>
+        <Button onPress={handleGuardar}>Registrar gasto</Button>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: '#fff',
+    padding: spacing.lg,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: colors.border,
   },
   label: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 6,
-    marginTop: 12,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
+    ...typography.label,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
-  chip: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  chipSeleccionado: {
-    backgroundColor: '#2563eb',
-    borderColor: '#2563eb',
-  },
-  chipTexto: {
-    fontSize: 14,
-    color: '#333',
-  },
-  chipTextoSeleccionado: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  error: {
-    color: '#dc2626',
-    marginTop: 6,
-  },
-  boton: {
-    backgroundColor: '#2563eb',
-    borderRadius: 8,
-    paddingVertical: 14,
+  botonContainer: {
     alignItems: 'center',
-    marginTop: 20,
-  },
-  botonTexto: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    marginTop: spacing.sm,
   },
 });

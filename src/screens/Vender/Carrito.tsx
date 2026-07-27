@@ -1,5 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import Button from '../../components/ui/Button';
+import StepperControl from '../../components/ui/StepperControl';
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import { formatPrecio } from '../Menu/formatPrecio';
 import type { CarritoItem } from './carritoUtils';
 
@@ -33,19 +38,11 @@ export default function Carrito({
                 </Text>
               </View>
               <View style={styles.itemControles}>
-                <Pressable
-                  style={styles.cantidadBoton}
-                  onPress={() => onCambiarCantidad(item.producto.id, item.cantidad - 1)}
-                >
-                  <Text style={styles.cantidadBotonTexto}>−</Text>
-                </Pressable>
-                <Text style={styles.cantidad}>{item.cantidad}</Text>
-                <Pressable
-                  style={styles.cantidadBoton}
-                  onPress={() => onCambiarCantidad(item.producto.id, item.cantidad + 1)}
-                >
-                  <Text style={styles.cantidadBotonTexto}>+</Text>
-                </Pressable>
+                <StepperControl
+                  value={item.cantidad}
+                  onIncrement={() => onCambiarCantidad(item.producto.id, item.cantidad + 1)}
+                  onDecrement={() => onCambiarCantidad(item.producto.id, item.cantidad - 1)}
+                />
                 <Pressable
                   style={styles.quitarBoton}
                   onPress={() => onQuitarProducto(item.producto.id)}
@@ -59,14 +56,13 @@ export default function Carrito({
       )}
 
       <View style={styles.footer}>
-        <Text style={styles.total}>Total: {formatPrecio(total)}</Text>
-        <Pressable
-          style={[styles.registrarBoton, vacio && styles.registrarBotonDeshabilitado]}
-          onPress={onRegistrarVenta}
-          disabled={vacio}
-        >
-          <Text style={styles.registrarBotonTexto}>Registrar venta</Text>
-        </Pressable>
+        <View style={styles.totalContainer}>
+          <Text style={styles.totalLabel}>Total</Text>
+          <Text style={styles.totalValor}>{formatPrecio(total)}</Text>
+        </View>
+        <Button onPress={onRegistrarVenta} disabled={vacio}>
+          Registrar venta
+        </Button>
       </View>
     </View>
   );
@@ -75,90 +71,61 @@ export default function Carrito({
 const styles = StyleSheet.create({
   container: {
     borderTopWidth: 1,
-    borderTopColor: '#eee',
-    backgroundColor: '#fff',
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
   },
   items: {
     maxHeight: 220,
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
   },
   item: {
-    marginBottom: 10,
+    marginBottom: spacing.md,
   },
   itemInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   itemNombre: {
-    fontSize: 15,
+    ...typography.cardText,
     fontWeight: '600',
-    color: '#111',
+    color: colors.textPrimary,
   },
   itemSubtotal: {
-    fontSize: 15,
-    color: '#111',
+    ...typography.cardText,
+    color: colors.textPrimary,
   },
   itemControles: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 6,
-    gap: 10,
-  },
-  cantidadBoton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cantidadBotonTexto: {
-    fontSize: 16,
-    color: '#333',
-    lineHeight: 18,
-  },
-  cantidad: {
-    fontSize: 15,
-    fontWeight: '600',
-    minWidth: 20,
-    textAlign: 'center',
+    marginTop: spacing.sm,
+    gap: spacing.md,
   },
   quitarBoton: {
     marginLeft: 'auto',
   },
   quitarBotonTexto: {
-    color: '#dc2626',
-    fontSize: 13,
-    fontWeight: '500',
+    ...typography.label,
+    color: colors.danger,
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md + spacing.xs,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: colors.border,
   },
-  total: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#111',
+  totalContainer: {
+    marginRight: spacing.md,
   },
-  registrarBoton: {
-    backgroundColor: '#2563eb',
-    borderRadius: 8,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+  totalLabel: {
+    ...typography.label,
+    color: colors.textSecondary,
   },
-  registrarBotonDeshabilitado: {
-    backgroundColor: '#93b4ee',
-  },
-  registrarBotonTexto: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '600',
+  totalValor: {
+    ...typography.numberLarge,
+    color: colors.textPrimary,
   },
 });

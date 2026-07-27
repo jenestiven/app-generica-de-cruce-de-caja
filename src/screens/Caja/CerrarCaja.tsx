@@ -1,7 +1,13 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import SummaryRow from '../../components/ui/SummaryRow';
 import { cerrarCaja, previsualizarCierre } from '../../db/cierresCaja';
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import type { CierreCaja, PreviewCierre } from '../../types/caja';
 import { formatPrecio } from '../Menu/formatPrecio';
 import { METODO_PAGO_LABEL } from '../Vender/metodoPago';
@@ -41,178 +47,102 @@ export default function CerrarCaja({ caja, onCerrada }: CerrarCajaProps) {
         <Text style={styles.subtitulo}>
           Base inicial: {formatPrecio(caja.baseInicial)}
         </Text>
-        <Pressable style={styles.boton} onPress={handleIniciarCierre}>
-          <Text style={styles.botonTexto}>Cerrar caja</Text>
-        </Pressable>
+        <View style={styles.botonContainer}>
+          <Button onPress={handleIniciarCierre}>Cerrar caja</Button>
+        </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contenido}>
       <Text style={styles.titulo}>Resumen del cierre</Text>
 
-      <View style={styles.fila}>
-        <Text style={styles.filaLabel}>Base inicial</Text>
-        <Text style={styles.filaValor}>{formatPrecio(preview.baseInicial)}</Text>
-      </View>
+      <SummaryRow label="Base inicial" value={formatPrecio(preview.baseInicial)} />
 
       <View style={styles.seccion}>
-        <Text style={styles.seccionTitulo}>Ventas: {formatPrecio(preview.totalVentas)}</Text>
-        <View style={styles.fila}>
-          <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.efectivo}</Text>
-          <Text style={styles.filaValor}>
-            {formatPrecio(preview.ventasPorMetodoPago.efectivo)}
-          </Text>
-        </View>
-        <View style={styles.fila}>
-          <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.transferencia}</Text>
-          <Text style={styles.filaValor}>
-            {formatPrecio(preview.ventasPorMetodoPago.transferencia)}
-          </Text>
-        </View>
+        <SummaryRow label="Total ventas" value={formatPrecio(preview.totalVentas)} />
+        <SummaryRow
+          label={METODO_PAGO_LABEL.efectivo}
+          value={formatPrecio(preview.ventasPorMetodoPago.efectivo)}
+        />
+        <SummaryRow
+          label={METODO_PAGO_LABEL.transferencia}
+          value={formatPrecio(preview.ventasPorMetodoPago.transferencia)}
+        />
         {preview.ventasPorMetodoPago.tarjeta > 0 && (
-          <View style={styles.fila}>
-            <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.tarjeta}</Text>
-            <Text style={styles.filaValor}>
-              {formatPrecio(preview.ventasPorMetodoPago.tarjeta)}
-            </Text>
-          </View>
+          <SummaryRow
+            label={METODO_PAGO_LABEL.tarjeta}
+            value={formatPrecio(preview.ventasPorMetodoPago.tarjeta)}
+          />
         )}
       </View>
 
       <View style={styles.seccion}>
-        <Text style={styles.seccionTitulo}>Gastos: {formatPrecio(preview.totalGastos)}</Text>
-        <View style={styles.fila}>
-          <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.efectivo}</Text>
-          <Text style={styles.filaValor}>
-            {formatPrecio(preview.gastosPorMetodoPago.efectivo)}
-          </Text>
-        </View>
-        <View style={styles.fila}>
-          <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.transferencia}</Text>
-          <Text style={styles.filaValor}>
-            {formatPrecio(preview.gastosPorMetodoPago.transferencia)}
-          </Text>
-        </View>
+        <SummaryRow label="Total gastos" value={formatPrecio(preview.totalGastos)} />
+        <SummaryRow
+          label={METODO_PAGO_LABEL.efectivo}
+          value={formatPrecio(preview.gastosPorMetodoPago.efectivo)}
+        />
+        <SummaryRow
+          label={METODO_PAGO_LABEL.transferencia}
+          value={formatPrecio(preview.gastosPorMetodoPago.transferencia)}
+        />
         {preview.gastosPorMetodoPago.tarjeta > 0 && (
-          <View style={styles.fila}>
-            <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.tarjeta}</Text>
-            <Text style={styles.filaValor}>
-              {formatPrecio(preview.gastosPorMetodoPago.tarjeta)}
-            </Text>
-          </View>
+          <SummaryRow
+            label={METODO_PAGO_LABEL.tarjeta}
+            value={formatPrecio(preview.gastosPorMetodoPago.tarjeta)}
+          />
         )}
       </View>
 
-      <View style={styles.filaDestacada}>
-        <Text style={styles.filaDestacadaLabel}>Efectivo esperado</Text>
-        <Text style={styles.filaDestacadaValor}>{formatPrecio(preview.efectivoEsperado)}</Text>
+      <SummaryRow label="Efectivo esperado" value={formatPrecio(preview.efectivoEsperado)} />
+
+      <View style={styles.inputContainer}>
+        <Input
+          label="¿Cuánto contaste en efectivo?"
+          value={efectivoContadoTexto}
+          onChangeText={setEfectivoContadoTexto}
+          placeholder="0"
+          keyboardType="numeric"
+          error={error ?? undefined}
+        />
       </View>
 
-      <Text style={styles.label}>¿Cuánto contaste en efectivo?</Text>
-      <TextInput
-        style={styles.input}
-        value={efectivoContadoTexto}
-        onChangeText={setEfectivoContadoTexto}
-        placeholder="0"
-        keyboardType="numeric"
-      />
-      {error !== null && <Text style={styles.error}>{error}</Text>}
-
-      <Pressable style={styles.boton} onPress={handleConfirmarCierre}>
-        <Text style={styles.botonTexto}>Confirmar cierre</Text>
-      </Pressable>
-    </View>
+      <View style={styles.botonContainer}>
+        <Button onPress={handleConfirmarCierre}>Confirmar cierre</Button>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    backgroundColor: colors.background,
+  },
+  contenido: {
+    padding: spacing.xl,
   },
   titulo: {
-    fontSize: 22,
-    fontWeight: '700',
-    marginBottom: 8,
+    ...typography.screenTitle,
+    color: colors.textPrimary,
+    marginBottom: spacing.sm,
     textAlign: 'center',
   },
   subtitulo: {
-    fontSize: 14,
-    color: '#555',
+    ...typography.cardText,
+    color: colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 24,
   },
   seccion: {
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
-  seccionTitulo: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 6,
+  inputContainer: {
+    marginTop: spacing.xl,
   },
-  fila: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  filaLabel: {
-    fontSize: 14,
-    color: '#555',
-  },
-  filaValor: {
-    fontSize: 14,
-    color: '#111',
-    fontWeight: '600',
-  },
-  filaDestacada: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 18,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-  },
-  filaDestacadaLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111',
-  },
-  filaDestacadaValor: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111',
-  },
-  label: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 20,
-    marginBottom: 6,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  error: {
-    color: '#dc2626',
-    marginTop: 6,
-  },
-  boton: {
-    backgroundColor: '#2563eb',
-    borderRadius: 8,
-    paddingVertical: 14,
+  botonContainer: {
     alignItems: 'center',
-    marginTop: 24,
-  },
-  botonTexto: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    marginTop: spacing.xl,
   },
 });

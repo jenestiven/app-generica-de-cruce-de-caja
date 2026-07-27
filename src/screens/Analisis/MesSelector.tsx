@@ -1,5 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+
 const MESES = [
   'Enero',
   'Febrero',
@@ -60,22 +63,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
-    marginBottom: 4,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
   },
   flecha: {
-    paddingHorizontal: 20,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xs,
   },
   flechaTexto: {
     fontSize: 26,
-    color: '#2563eb',
+    color: colors.primary,
     fontWeight: '700',
   },
   mesTexto: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#111',
+    color: colors.textPrimary,
     minWidth: 150,
     textAlign: 'center',
   },

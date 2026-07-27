@@ -2,8 +2,12 @@ import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
+import Card from '../../components/ui/Card';
 import { getCajaDeHoy } from '../../db/cierresCaja';
 import { crearGasto, getGastosDeHoy, getTotalGastadoHoy } from '../../db/gastos';
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import type { CierreCaja } from '../../types/caja';
 import type { Gasto, TotalGastadoHoy } from '../../types/gasto';
 import AbrirCaja from '../Caja/AbrirCaja';
@@ -74,16 +78,18 @@ export default function GastosScreen() {
         contentContainerStyle={styles.listaContenido}
         ListHeaderComponent={<GastoForm onGuardar={handleGuardarGasto} />}
         renderItem={({ item }) => (
-          <View style={styles.gasto}>
-            <View style={styles.gastoInfo}>
-              <Text style={styles.gastoDescripcion}>{item.descripcion}</Text>
-              <Text style={styles.gastoDetalle}>
-                {CATEGORIA_GASTO_LABEL[item.categoria]} · {METODO_PAGO_LABEL[item.metodoPago]} ·{' '}
-                {formatHora(item.fechaHora)}
-              </Text>
+          <Card style={styles.gasto}>
+            <View style={styles.gastoRow}>
+              <View style={styles.gastoInfo}>
+                <Text style={styles.gastoDescripcion}>{item.descripcion}</Text>
+                <Text style={styles.gastoDetalle}>
+                  {CATEGORIA_GASTO_LABEL[item.categoria]} · {METODO_PAGO_LABEL[item.metodoPago]} ·{' '}
+                  {formatHora(item.fechaHora)}
+                </Text>
+              </View>
+              <Text style={styles.gastoMonto}>{formatPrecio(item.monto)}</Text>
             </View>
-            <Text style={styles.gastoMonto}>{formatPrecio(item.monto)}</Text>
-          </View>
+          </Card>
         )}
         ListEmptyComponent={
           <Text style={styles.vacio}>Aún no hay gastos registrados hoy.</Text>
@@ -96,66 +102,64 @@ export default function GastosScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   resumenHoy: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 10,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm + spacing.xs,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    backgroundColor: '#fff',
+    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
   },
   resumenTotal: {
-    fontSize: 16,
+    ...typography.cardText,
     fontWeight: '700',
-    color: '#111',
+    color: colors.textPrimary,
   },
   resumenDesglose: {
-    fontSize: 13,
-    color: '#555',
-    marginTop: 2,
+    ...typography.label,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
   },
   lista: {
     flex: 1,
   },
   listaContenido: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   gasto: {
+    marginTop: spacing.sm,
+  },
+  gastoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#eee',
   },
   gastoInfo: {
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   gastoDescripcion: {
-    fontSize: 16,
+    ...typography.cardText,
     fontWeight: '600',
-    color: '#111',
+    color: colors.textPrimary,
   },
   gastoDetalle: {
-    fontSize: 13,
-    color: '#555',
-    marginTop: 2,
+    ...typography.label,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
   },
   gastoMonto: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#dc2626',
+    color: colors.danger,
   },
   vacio: {
+    ...typography.cardText,
     textAlign: 'center',
-    color: '#777',
-    marginTop: 24,
+    color: colors.textSecondary,
+    marginTop: spacing.xl,
   },
 });

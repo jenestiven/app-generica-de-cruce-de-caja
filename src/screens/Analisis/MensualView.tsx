@@ -3,6 +3,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { LayoutChangeEvent, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 
+import Card from '../../components/ui/Card';
+import StatusBadge from '../../components/ui/StatusBadge';
+import SummaryRow from '../../components/ui/SummaryRow';
 import {
   getHistorialDiferenciasCaja,
   getProductosMasVendidos,
@@ -13,19 +16,22 @@ import {
   type ResumenMensual,
   type VentaDiaria,
 } from '../../db/analisis';
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import { formatPrecio } from '../Menu/formatPrecio';
 import MesSelector from './MesSelector';
 
 const TOP_PRODUCTOS_LIMITE = 5;
 
 const chartConfig = {
-  backgroundGradientFrom: '#fff',
-  backgroundGradientTo: '#fff',
+  backgroundGradientFrom: colors.background,
+  backgroundGradientTo: colors.background,
   decimalPlaces: 0,
-  color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`,
-  labelColor: (opacity = 1) => `rgba(85, 85, 85, ${opacity})`,
+  color: (opacity = 1) => `rgba(255, 122, 26, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(118, 118, 118, ${opacity})`,
   propsForBackgroundLines: {
-    stroke: '#f2f2f2',
+    stroke: colors.border,
   },
 };
 
@@ -101,27 +107,35 @@ export default function MensualView() {
       ) : (
         <>
           <View style={styles.tarjetasFila}>
-            <View style={styles.tarjeta}>
+            <Card style={styles.tarjeta}>
               <Text style={styles.tarjetaLabel}>Total ventas</Text>
-              <Text style={styles.tarjetaValor}>{formatPrecio(resumen.totalVentas)}</Text>
-            </View>
-            <View style={styles.tarjeta}>
+              <Text style={styles.tarjetaValor} numberOfLines={1} adjustsFontSizeToFit>
+                {formatPrecio(resumen.totalVentas)}
+              </Text>
+            </Card>
+            <Card style={styles.tarjeta}>
               <Text style={styles.tarjetaLabel}>Total gastos</Text>
-              <Text style={styles.tarjetaValor}>{formatPrecio(resumen.totalGastos)}</Text>
-            </View>
+              <Text style={styles.tarjetaValor} numberOfLines={1} adjustsFontSizeToFit>
+                {formatPrecio(resumen.totalGastos)}
+              </Text>
+            </Card>
           </View>
           <View style={styles.tarjetasFila}>
-            <View style={styles.tarjeta}>
+            <Card style={styles.tarjeta}>
               <Text style={styles.tarjetaLabel}>Utilidad neta</Text>
-              <Text style={styles.tarjetaValor}>{formatPrecio(resumen.utilidadNeta)}</Text>
-            </View>
-            <View style={styles.tarjeta}>
+              <Text style={styles.tarjetaValor} numberOfLines={1} adjustsFontSizeToFit>
+                {formatPrecio(resumen.utilidadNeta)}
+              </Text>
+            </Card>
+            <Card style={styles.tarjeta}>
               <Text style={styles.tarjetaLabel}>Promedio venta diaria</Text>
-              <Text style={styles.tarjetaValor}>{formatPrecio(resumen.promedioVentaDiaria)}</Text>
-            </View>
+              <Text style={styles.tarjetaValor} numberOfLines={1} adjustsFontSizeToFit>
+                {formatPrecio(resumen.promedioVentaDiaria)}
+              </Text>
+            </Card>
           </View>
 
-          <View style={styles.seccion}>
+          <Card style={styles.seccion}>
             <Text style={styles.seccionTitulo}>Ventas por día</Text>
             <View style={styles.grafica} onLayout={handleLayoutGrafica}>
               {anchoGrafica > 0 && (
@@ -138,9 +152,9 @@ export default function MensualView() {
                 />
               )}
             </View>
-          </View>
+          </Card>
 
-          <View style={styles.seccion}>
+          <Card style={styles.seccion}>
             <Text style={styles.seccionTitulo}>Top {TOP_PRODUCTOS_LIMITE} productos</Text>
             {productos.length === 0 ? (
               <Text style={styles.vacioListaTexto}>No hay productos vendidos este mes.</Text>
@@ -155,9 +169,9 @@ export default function MensualView() {
                 </View>
               ))
             )}
-          </View>
+          </Card>
 
-          <View style={styles.seccion}>
+          <Card style={styles.seccion}>
             <Text style={styles.seccionTitulo}>Diferencias de caja del mes</Text>
             {diferencias.length === 0 ? (
               <Text style={styles.vacioListaTexto}>No hay cierres registrados este mes.</Text>
@@ -165,29 +179,23 @@ export default function MensualView() {
               diferencias.map((dia) => {
                 const cuadra = dia.diferencia === 0;
                 return (
-                  <View key={dia.fecha} style={styles.filaDiferencia}>
-                    <Text style={styles.filaDiferenciaFecha}>{formatFechaCorta(dia.fecha)}</Text>
-                    <Text
-                      style={[
-                        styles.filaDiferenciaValor,
-                        cuadra
-                          ? styles.textoNeutro
-                          : dia.diferencia > 0
-                            ? styles.textoVerde
-                            : styles.textoRojo,
-                      ]}
-                    >
-                      {cuadra
-                        ? 'Cuadró'
-                        : dia.diferencia > 0
-                          ? `Sobró ${formatPrecio(dia.diferencia)}`
-                          : `Faltó ${formatPrecio(Math.abs(dia.diferencia))}`}
-                    </Text>
-                  </View>
+                  <SummaryRow
+                    key={dia.fecha}
+                    label={formatFechaCorta(dia.fecha)}
+                    value={cuadra ? 'Cuadró' : undefined}
+                    valueElement={
+                      cuadra ? undefined : (
+                        <StatusBadge
+                          value={formatPrecio(Math.abs(dia.diferencia))}
+                          positive={dia.diferencia > 0}
+                        />
+                      )
+                    }
+                  />
                 );
               })
             )}
-          </View>
+          </Card>
         </>
       )}
     </ScrollView>
@@ -197,63 +205,53 @@ export default function MensualView() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   contenido: {
-    padding: 16,
-    paddingBottom: 32,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   vacio: {
-    marginTop: 40,
+    marginTop: spacing.xxl + spacing.sm,
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.xl,
   },
   vacioTexto: {
-    fontSize: 14,
-    color: '#777',
+    ...typography.cardText,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
   tarjetasFila: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 10,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   tarjeta: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#eee',
-    paddingVertical: 14,
-    paddingHorizontal: 10,
     alignItems: 'center',
   },
   tarjetaLabel: {
-    fontSize: 12,
-    color: '#555',
+    ...typography.label,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   tarjetaValor: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#111',
-    marginTop: 4,
+    ...typography.numberLarge,
+    fontSize: 20,
+    color: colors.textPrimary,
+    marginTop: spacing.xs,
     textAlign: 'center',
   },
   seccion: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#eee',
-    padding: 14,
-    marginTop: 6,
-    marginBottom: 10,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
   },
   seccionTitulo: {
-    fontSize: 15,
+    ...typography.cardText,
     fontWeight: '700',
-    color: '#333',
-    marginBottom: 10,
+    color: colors.textPrimary,
+    marginBottom: spacing.sm,
   },
   grafica: {
     height: 200,
@@ -262,56 +260,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   vacioListaTexto: {
-    fontSize: 13,
-    color: '#777',
+    ...typography.label,
+    color: colors.textSecondary,
   },
   filaProducto: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
+    paddingVertical: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: '#f2f2f2',
+    borderBottomColor: colors.border,
   },
   filaProductoPosicion: {
     width: 22,
     fontSize: 14,
     fontWeight: '700',
-    color: '#2563eb',
+    color: colors.primary,
   },
   filaProductoNombre: {
     flex: 1,
-    fontSize: 14,
-    color: '#111',
-    marginRight: 8,
+    ...typography.cardText,
+    color: colors.textPrimary,
+    marginRight: spacing.sm,
   },
   filaProductoCantidad: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#111',
-  },
-  filaDiferencia: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f2f2f2',
-  },
-  filaDiferenciaFecha: {
-    fontSize: 14,
-    color: '#555',
-  },
-  filaDiferenciaValor: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  textoNeutro: {
-    color: '#555',
-  },
-  textoVerde: {
-    color: '#16a34a',
-  },
-  textoRojo: {
-    color: '#dc2626',
+    color: colors.textPrimary,
   },
 });

@@ -1,7 +1,12 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import StatusBadge from '../../components/ui/StatusBadge';
+import SummaryRow from '../../components/ui/SummaryRow';
 import { getTotalGastadoHoy } from '../../db/gastos';
 import { getTotalVendidoHoy } from '../../db/ventas';
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import type { CierreCaja } from '../../types/caja';
 import { formatPrecio } from '../Menu/formatPrecio';
 import { METODO_PAGO_LABEL } from '../Vender/metodoPago';
@@ -17,78 +22,63 @@ export default function ResumenCierre({ cierre, nota }: ResumenCierreProps) {
   const ventas = getTotalVendidoHoy();
   const gastos = getTotalGastadoHoy();
   const diferencia = cierre.diferencia ?? 0;
-  const cuadra = diferencia === 0;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contenido}>
       <Text style={styles.titulo}>Caja cerrada</Text>
       {nota !== undefined && <Text style={styles.nota}>{nota}</Text>}
 
-      <View style={styles.fila}>
-        <Text style={styles.filaLabel}>Base inicial</Text>
-        <Text style={styles.filaValor}>{formatPrecio(cierre.baseInicial)}</Text>
-      </View>
+      <SummaryRow label="Base inicial" value={formatPrecio(cierre.baseInicial)} />
 
       <View style={styles.seccion}>
-        <Text style={styles.seccionTitulo}>Ventas: {formatPrecio(cierre.totalVentas)}</Text>
-        <View style={styles.fila}>
-          <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.efectivo}</Text>
-          <Text style={styles.filaValor}>{formatPrecio(ventas.porMetodoPago.efectivo)}</Text>
-        </View>
-        <View style={styles.fila}>
-          <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.transferencia}</Text>
-          <Text style={styles.filaValor}>{formatPrecio(ventas.porMetodoPago.transferencia)}</Text>
-        </View>
+        <SummaryRow label="Total ventas" value={formatPrecio(cierre.totalVentas)} />
+        <SummaryRow
+          label={METODO_PAGO_LABEL.efectivo}
+          value={formatPrecio(ventas.porMetodoPago.efectivo)}
+        />
+        <SummaryRow
+          label={METODO_PAGO_LABEL.transferencia}
+          value={formatPrecio(ventas.porMetodoPago.transferencia)}
+        />
         {ventas.porMetodoPago.tarjeta > 0 && (
-          <View style={styles.fila}>
-            <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.tarjeta}</Text>
-            <Text style={styles.filaValor}>{formatPrecio(ventas.porMetodoPago.tarjeta)}</Text>
-          </View>
+          <SummaryRow
+            label={METODO_PAGO_LABEL.tarjeta}
+            value={formatPrecio(ventas.porMetodoPago.tarjeta)}
+          />
         )}
       </View>
 
       <View style={styles.seccion}>
-        <Text style={styles.seccionTitulo}>Gastos: {formatPrecio(cierre.totalGastos)}</Text>
-        <View style={styles.fila}>
-          <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.efectivo}</Text>
-          <Text style={styles.filaValor}>{formatPrecio(gastos.porMetodoPago.efectivo)}</Text>
-        </View>
-        <View style={styles.fila}>
-          <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.transferencia}</Text>
-          <Text style={styles.filaValor}>{formatPrecio(gastos.porMetodoPago.transferencia)}</Text>
-        </View>
+        <SummaryRow label="Total gastos" value={formatPrecio(cierre.totalGastos)} />
+        <SummaryRow
+          label={METODO_PAGO_LABEL.efectivo}
+          value={formatPrecio(gastos.porMetodoPago.efectivo)}
+        />
+        <SummaryRow
+          label={METODO_PAGO_LABEL.transferencia}
+          value={formatPrecio(gastos.porMetodoPago.transferencia)}
+        />
         {gastos.porMetodoPago.tarjeta > 0 && (
-          <View style={styles.fila}>
-            <Text style={styles.filaLabel}>{METODO_PAGO_LABEL.tarjeta}</Text>
-            <Text style={styles.filaValor}>{formatPrecio(gastos.porMetodoPago.tarjeta)}</Text>
-          </View>
+          <SummaryRow
+            label={METODO_PAGO_LABEL.tarjeta}
+            value={formatPrecio(gastos.porMetodoPago.tarjeta)}
+          />
         )}
       </View>
 
-      <View style={styles.fila}>
-        <Text style={styles.filaLabel}>Efectivo esperado</Text>
-        <Text style={styles.filaValor}>{formatPrecio(cierre.efectivoEsperado)}</Text>
-      </View>
-      <View style={styles.fila}>
-        <Text style={styles.filaLabel}>Efectivo contado</Text>
-        <Text style={styles.filaValor}>{formatPrecio(cierre.efectivoContado ?? 0)}</Text>
+      <SummaryRow label="Efectivo esperado" value={formatPrecio(cierre.efectivoEsperado)} />
+      <SummaryRow label="Efectivo contado" value={formatPrecio(cierre.efectivoContado ?? 0)} />
+
+      <View style={styles.diferenciaFila}>
+        <Text style={styles.diferenciaLabel}>Diferencia</Text>
+        <StatusBadge value={formatPrecio(Math.abs(diferencia))} positive={diferencia >= 0} />
       </View>
 
-      <View style={styles.destacado}>
-        <Text style={styles.destacadoLabel}>Diferencia</Text>
-        <Text style={[styles.destacadoValor, cuadra ? styles.textoVerde : styles.textoRojo]}>
-          {cuadra
-            ? 'Cuadró exacto'
-            : diferencia > 0
-              ? `Sobró ${formatPrecio(diferencia)}`
-              : `Faltó ${formatPrecio(Math.abs(diferencia))}`}
-        </Text>
-      </View>
-
-      <View style={styles.destacado}>
-        <Text style={styles.destacadoLabel}>Utilidad neta del día</Text>
-        <Text style={styles.destacadoValor}>{formatPrecio(cierre.utilidadNeta ?? 0)}</Text>
-      </View>
+      <SummaryRow
+        label="Utilidad neta del día"
+        value={formatPrecio(cierre.utilidadNeta ?? 0)}
+        variant="total"
+      />
     </ScrollView>
   );
 }
@@ -96,65 +86,33 @@ export default function ResumenCierre({ cierre, nota }: ResumenCierreProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   contenido: {
-    padding: 24,
+    padding: spacing.xl,
   },
   titulo: {
-    fontSize: 22,
-    fontWeight: '700',
+    ...typography.screenTitle,
+    color: colors.textPrimary,
     textAlign: 'center',
   },
   nota: {
-    fontSize: 14,
-    color: '#555',
+    ...typography.cardText,
+    color: colors.textSecondary,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   seccion: {
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
-  seccionTitulo: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 6,
-  },
-  fila: {
+  diferenciaFila: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  filaLabel: {
-    fontSize: 14,
-    color: '#555',
-  },
-  filaValor: {
-    fontSize: 14,
-    color: '#111',
-    fontWeight: '600',
-  },
-  destacado: {
-    marginTop: 18,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
     alignItems: 'center',
+    paddingVertical: spacing.sm,
   },
-  destacadoLabel: {
-    fontSize: 14,
-    color: '#555',
-  },
-  destacadoValor: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111',
-    marginTop: 4,
-  },
-  textoVerde: {
-    color: '#16a34a',
-  },
-  textoRojo: {
-    color: '#dc2626',
+  diferenciaLabel: {
+    fontSize: 15,
+    color: colors.textSecondary,
   },
 });

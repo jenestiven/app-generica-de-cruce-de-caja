@@ -3,6 +3,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { getCajaDeHoy } from '../../db/cierresCaja';
+import { colors } from '../../theme/colors';
+import { spacing } from '../../theme/spacing';
+import { typography } from '../../theme/typography';
 import type { CierreCaja } from '../../types/caja';
 import CerrarCaja from './CerrarCaja';
 import ResumenCierre from './ResumenCierre';
@@ -42,17 +45,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 24,
+    padding: spacing.xl,
+    backgroundColor: colors.background,
   },
   titulo: {
-    fontSize: 20,
-    fontWeight: '700',
+    ...typography.screenTitle,
+    color: colors.textPrimary,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   subtitulo: {
-    fontSize: 14,
-    color: '#555',
+    ...typography.cardText,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });
