@@ -60,6 +60,11 @@ export function getGastosDeHoy(): Gasto[] {
   return rows.map(mapRowToGasto);
 }
 
+export function getTodosLosGastos(): Gasto[] {
+  const rows = db.getAllSync<GastoRow>('SELECT * FROM gastos ORDER BY fecha_hora ASC');
+  return rows.map(mapRowToGasto);
+}
+
 export function getTotalGastadoHoy(): TotalGastadoHoy {
   const gastos = getGastosDeHoy();
 

@@ -7,6 +7,7 @@ import type {
   MetodoPago,
   TotalVendidoHoy,
   Venta,
+  VentaItem,
 } from '../types/venta';
 
 interface VentaRow {
@@ -26,6 +27,26 @@ function mapRowToVenta(row: VentaRow): Venta {
     metodoPago: row.metodo_pago,
     updatedAt: row.updated_at,
     syncedAt: row.synced_at,
+  };
+}
+
+interface VentaItemRow {
+  id: string;
+  venta_id: string;
+  producto_id: string;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+}
+
+function mapRowToVentaItem(row: VentaItemRow): VentaItem {
+  return {
+    id: row.id,
+    ventaId: row.venta_id,
+    productoId: row.producto_id,
+    cantidad: row.cantidad,
+    precioUnitario: row.precio_unitario,
+    subtotal: row.subtotal,
   };
 }
 
@@ -80,6 +101,16 @@ export function getVentasDeHoy(): Venta[] {
     [inicio, fin]
   );
   return rows.map(mapRowToVenta);
+}
+
+export function getTodasLasVentas(): Venta[] {
+  const rows = db.getAllSync<VentaRow>('SELECT * FROM ventas ORDER BY fecha_hora ASC');
+  return rows.map(mapRowToVenta);
+}
+
+export function getTodosLosVentaItems(): VentaItem[] {
+  const rows = db.getAllSync<VentaItemRow>('SELECT * FROM venta_items ORDER BY id ASC');
+  return rows.map(mapRowToVentaItem);
 }
 
 export function getTotalVendidoHoy(): TotalVendidoHoy {

@@ -91,6 +91,11 @@ export function abrirCaja(baseInicial: number): CierreCaja {
   };
 }
 
+export function getTodosLosCierres(): CierreCaja[] {
+  const rows = db.getAllSync<CierreCajaRow>('SELECT * FROM cierres_caja ORDER BY fecha ASC');
+  return rows.map(mapRowToCierreCaja);
+}
+
 export function getCierrePorId(id: string): CierreCaja | null {
   const row = db.getFirstSync<CierreCajaRow>('SELECT * FROM cierres_caja WHERE id = ? LIMIT 1', [
     id,
