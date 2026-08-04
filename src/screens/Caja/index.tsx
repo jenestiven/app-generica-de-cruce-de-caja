@@ -1,17 +1,20 @@
 import { useCallback, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import { StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
-import { getCajaDeHoy } from '../../db/cierresCaja';
+import { getCajaDeHoy, iniciarCorreccion, puedeCorregirse } from '../../db/cierresCaja';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
 import type { CierreCaja } from '../../types/caja';
+import type { RootTabParamList } from '../../types/navigation';
 import CerrarCaja from './CerrarCaja';
 import ResumenCierre from './ResumenCierre';
 
 export default function CajaScreen() {
   const [caja, setCaja] = useState<CierreCaja | null>(() => getCajaDeHoy());
+  const navigation = useNavigation<BottomTabNavigationProp<RootTabParamList>>();
 
   useFocusEffect(
     useCallback(() => {
@@ -21,6 +24,29 @@ export default function CajaScreen() {
 
   function handleCerrada(cierre: CierreCaja) {
     setCaja(cierre);
+  }
+
+  function handleCorregir() {
+    if (caja === null) {
+      return;
+    }
+    const cierreId = caja.id;
+
+    Alert.alert(
+      'Corregir cierre de hoy',
+      'Vas a poder agregar ventas o gastos que falten. Al terminar, tendrás que confirmar el cierre de nuevo.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Continuar',
+          onPress: () => {
+            iniciarCorreccion(cierreId);
+            setCaja(getCajaDeHoy());
+            navigation.navigate('Vender');
+          },
+        },
+      ]
+    );
   }
 
   if (caja === null) {
@@ -35,7 +61,9 @@ export default function CajaScreen() {
   }
 
   if (caja.cerrado) {
-    return <ResumenCierre cierre={caja} />;
+    return (
+      <ResumenCierre cierre={caja} onCorregir={puedeCorregirse(caja) ? handleCorregir : undefined} />
+    );
   }
 
   return <CerrarCaja caja={caja} onCerrada={handleCerrada} />;

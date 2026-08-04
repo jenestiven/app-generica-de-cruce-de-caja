@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import Button from '../../components/ui/Button';
 import StatusBadge from '../../components/ui/StatusBadge';
 import SummaryRow from '../../components/ui/SummaryRow';
 import { getTotalGastadoHoy } from '../../db/gastos';
@@ -14,11 +15,12 @@ import { METODO_PAGO_LABEL } from '../Vender/metodoPago';
 type ResumenCierreProps = {
   cierre: CierreCaja;
   nota?: string;
+  onCorregir?: () => void;
 };
 
 // Resumen final, no editable, del cierre de un día ya cerrado.
 // Se usa tanto en la pestaña Caja como en el bloqueo de Vender/Gastos.
-export default function ResumenCierre({ cierre, nota }: ResumenCierreProps) {
+export default function ResumenCierre({ cierre, nota, onCorregir }: ResumenCierreProps) {
   const ventas = getTotalVendidoHoy();
   const gastos = getTotalGastadoHoy();
   const diferencia = cierre.diferencia ?? 0;
@@ -79,6 +81,14 @@ export default function ResumenCierre({ cierre, nota }: ResumenCierreProps) {
         value={formatPrecio(cierre.utilidadNeta ?? 0)}
         variant="total"
       />
+
+      {onCorregir !== undefined && (
+        <View style={styles.botonContainer}>
+          <Button variant="secondary" onPress={onCorregir}>
+            Corregir cierre de hoy
+          </Button>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -115,5 +125,9 @@ const styles = StyleSheet.create({
   diferenciaLabel: {
     fontSize: 15,
     color: colors.textSecondary,
+  },
+  botonContainer: {
+    alignItems: 'center',
+    marginTop: spacing.xl,
   },
 });
