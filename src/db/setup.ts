@@ -1,6 +1,12 @@
 import * as SQLite from 'expo-sqlite';
+import { Directory, Paths } from 'expo-file-system';
 
 export const db = SQLite.openDatabaseSync('ventas-pulga.db');
+
+const CARPETA_PRODUCTOS = 'productos';
+
+// Orden que respeta las foreign keys: venta_items depende de ventas y productos.
+const TABLAS_A_LIMPIAR = ['venta_items', 'ventas', 'productos', 'gastos', 'cierres_caja'];
 
 export function initDatabase(): void {
   db.execSync(`
@@ -95,5 +101,19 @@ function migrarColumnasProductos(): void {
 
   if (!columnasExistentes.has('imagen_uri')) {
     db.execSync('ALTER TABLE productos ADD COLUMN imagen_uri TEXT;');
+  }
+}
+
+/**
+ * Borra todos los datos de prueba: vacía las tablas (DELETE, conserva el
+ * esquema) y elimina las imágenes de productos guardadas en documentDirectory.
+ * Pensada solo para uso en desarrollo (__DEV__).
+ */
+export function resetearBaseDeDatos(): void {
+  db.execSync(TABLAS_A_LIMPIAR.map((tabla) => `DELETE FROM ${tabla};`).join('\n'));
+
+  const directorioProductos = new Directory(Paths.document, CARPETA_PRODUCTOS);
+  if (directorioProductos.exists) {
+    directorioProductos.delete();
   }
 }

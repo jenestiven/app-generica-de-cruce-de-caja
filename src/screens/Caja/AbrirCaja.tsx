@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: spacing.xl,
+    marginTop: spacing.xxl,
     backgroundColor: colors.background,
   },
   titulo: {

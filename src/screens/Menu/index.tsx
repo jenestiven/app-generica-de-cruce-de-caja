@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
+  Alert,
   Modal,
   Pressable,
   SectionList,
@@ -14,6 +15,7 @@ import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import ProductoImagen from '../../components/ui/ProductoImagen';
 import { actualizarProducto, crearProducto, getProductos } from '../../db/productos';
+import { resetearBaseDeDatos } from '../../db/setup';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
@@ -79,6 +81,25 @@ export default function MenuScreen() {
     cargarProductos();
   }
 
+  function handleReiniciarDatos() {
+    Alert.alert(
+      'Reiniciar datos de prueba',
+      'Esto borrará todos los productos, ventas, gastos y cierres de caja guardados. Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Reiniciar',
+          style: 'destructive',
+          onPress: () => {
+            resetearBaseDeDatos();
+            cargarProductos();
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  }
+
   const secciones = agruparPorCategoria(productos);
 
   return (
@@ -87,6 +108,15 @@ export default function MenuScreen() {
         sections={secciones}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listaContenido}
+        ListHeaderComponent={
+          __DEV__ ? (
+            <View style={styles.devContainer}>
+              <Button variant="secondary" onPress={handleReiniciarDatos}>
+                Reiniciar datos de prueba
+              </Button>
+            </View>
+          ) : undefined
+        }
         renderSectionHeader={({ section }) => (
           <Text style={styles.seccionTitulo}>{section.title}</Text>
         )}
@@ -142,10 +172,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    marginTop: spacing.xxl,
   },
   listaContenido: {
     padding: spacing.lg,
     paddingBottom: 96,
+  },
+  devContainer: {
+    marginBottom: spacing.md,
   },
   seccionTitulo: {
     ...typography.label,

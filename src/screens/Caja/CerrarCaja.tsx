@@ -120,6 +120,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    marginTop: spacing.xxl,
+    paddingVertical: spacing.lg,
   },
   contenido: {
     padding: spacing.xl,
