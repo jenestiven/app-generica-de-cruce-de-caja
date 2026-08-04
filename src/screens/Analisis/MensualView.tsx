@@ -3,6 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { LayoutChangeEvent, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 
+import Badge from '../../components/ui/Badge';
 import Card from '../../components/ui/Card';
 import StatusBadge from '../../components/ui/StatusBadge';
 import SummaryRow from '../../components/ui/SummaryRow';
@@ -182,6 +183,7 @@ export default function MensualView() {
                   <SummaryRow
                     key={dia.fecha}
                     label={formatFechaCorta(dia.fecha)}
+                    labelElement={dia.corregido ? <Badge label="Corregido" /> : undefined}
                     value={cuadra ? 'Cuadró' : undefined}
                     valueElement={
                       cuadra ? undefined : (

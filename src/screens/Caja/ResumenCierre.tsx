@@ -1,5 +1,7 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import StatusBadge from '../../components/ui/StatusBadge';
 import SummaryRow from '../../components/ui/SummaryRow';
@@ -18,16 +20,51 @@ type ResumenCierreProps = {
   onCorregir?: () => void;
 };
 
+function formatFechaHoraCorreccion(fechaHora: string): string {
+  return new Date(fechaHora).toLocaleString('es-CO', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 // Resumen final, no editable, del cierre de un día ya cerrado.
 // Se usa tanto en la pestaña Caja como en el bloqueo de Vender/Gastos.
 export default function ResumenCierre({ cierre, nota, onCorregir }: ResumenCierreProps) {
   const ventas = getTotalVendidoHoy();
   const gastos = getTotalGastadoHoy();
   const diferencia = cierre.diferencia ?? 0;
+  const [mostrarDetalleCorreccion, setMostrarDetalleCorreccion] = useState(false);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contenido}>
       <Text style={styles.titulo}>Caja cerrada</Text>
+
+      {cierre.corregido && (
+        <View style={styles.correccionContainer}>
+          <Pressable
+            onPress={() => setMostrarDetalleCorreccion((valor) => !valor)}
+            style={styles.correccionBadgeWrapper}
+          >
+            <Badge label="Corregido" />
+          </Pressable>
+          {mostrarDetalleCorreccion && (
+            <View style={styles.correccionDetalle}>
+              {cierre.fechaCorreccion !== null && (
+                <Text style={styles.correccionDetalleTexto}>
+                  Corregido el {formatFechaHoraCorreccion(cierre.fechaCorreccion)}
+                </Text>
+              )}
+              {cierre.motivoCorreccion !== null && cierre.motivoCorreccion !== '' && (
+                <Text style={styles.correccionDetalleTexto}>{cierre.motivoCorreccion}</Text>
+              )}
+            </View>
+          )}
+        </View>
+      )}
+
       {nota !== undefined && <Text style={styles.nota}>{nota}</Text>}
 
       <SummaryRow label="Base inicial" value={formatPrecio(cierre.baseInicial)} />
@@ -112,6 +149,22 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     marginTop: spacing.sm,
+  },
+  correccionContainer: {
+    alignItems: 'center',
+    marginTop: spacing.sm,
+  },
+  correccionBadgeWrapper: {
+    alignItems: 'center',
+  },
+  correccionDetalle: {
+    marginTop: spacing.xs,
+    alignItems: 'center',
+  },
+  correccionDetalleTexto: {
+    ...typography.label,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
   seccion: {
     marginTop: spacing.lg,

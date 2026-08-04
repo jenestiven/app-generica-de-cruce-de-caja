@@ -8,17 +8,27 @@ type SummaryRowVariant = 'default' | 'total';
 
 type SummaryRowProps = {
   label: string;
+  labelElement?: ReactNode;
   value?: string;
   valueElement?: ReactNode;
   variant?: SummaryRowVariant;
 };
 
-export default function SummaryRow({ label, value, valueElement, variant = 'default' }: SummaryRowProps) {
+export default function SummaryRow({
+  label,
+  labelElement,
+  value,
+  valueElement,
+  variant = 'default',
+}: SummaryRowProps) {
   const isTotal = variant === 'total';
 
   return (
     <View style={[styles.container, isTotal && styles.containerTotal]}>
-      <Text style={[styles.text, isTotal && styles.textTotal, styles.label]}>{label}</Text>
+      <View style={styles.labelContainer}>
+        <Text style={[styles.text, isTotal && styles.textTotal, styles.label]}>{label}</Text>
+        {labelElement}
+      </View>
       {valueElement ?? <Text style={[styles.text, isTotal && styles.textTotal]}>{value}</Text>}
     </View>
   );
@@ -36,6 +46,11 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
     marginTop: spacing.xs,
     paddingTop: spacing.md,
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   text: {
     fontSize: 15,

@@ -33,6 +33,9 @@ export interface ProductoMasVendido {
 export interface DiferenciaCajaDia {
   fecha: string;
   diferencia: number;
+  corregido: boolean;
+  fechaCorreccion: string | null;
+  motivoCorreccion: string | null;
 }
 
 // "YYYY-MM-%" para filtrar cierres_caja.fecha (TEXT "YYYY-MM-DD") por mes/año.
@@ -131,13 +134,25 @@ export function getProductosMasVendidos(
 }
 
 export function getHistorialDiferenciasCaja(mes: number, anio: number): DiferenciaCajaDia[] {
-  const rows = db.getAllSync<{ fecha: string; diferencia: number | null }>(
-    `SELECT fecha, diferencia
+  const rows = db.getAllSync<{
+    fecha: string;
+    diferencia: number | null;
+    corregido: number;
+    fecha_correccion: string | null;
+    motivo_correccion: string | null;
+  }>(
+    `SELECT fecha, diferencia, corregido, fecha_correccion, motivo_correccion
      FROM cierres_caja
      WHERE cerrado = 1 AND fecha LIKE ?
      ORDER BY fecha ASC`,
     [getPatronMes(mes, anio)]
   );
 
-  return rows.map((row) => ({ fecha: row.fecha, diferencia: row.diferencia ?? 0 }));
+  return rows.map((row) => ({
+    fecha: row.fecha,
+    diferencia: row.diferencia ?? 0,
+    corregido: row.corregido === 1,
+    fechaCorreccion: row.fecha_correccion,
+    motivoCorreccion: row.motivo_correccion,
+  }));
 }
