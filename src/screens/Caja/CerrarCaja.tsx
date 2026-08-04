@@ -4,7 +4,12 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import SummaryRow from '../../components/ui/SummaryRow';
-import { cerrarCaja, previsualizarCierre } from '../../db/cierresCaja';
+import {
+  cerrarCaja,
+  confirmarCorreccion,
+  previsualizarCierre,
+  previsualizarCorreccion,
+} from '../../db/cierresCaja';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
@@ -15,11 +20,15 @@ import { METODO_PAGO_LABEL } from '../Vender/metodoPago';
 type CerrarCajaProps = {
   caja: CierreCaja;
   onCerrada: (cierre: CierreCaja) => void;
+  correccion?: boolean;
 };
 
-export default function CerrarCaja({ caja, onCerrada }: CerrarCajaProps) {
-  const [preview, setPreview] = useState<PreviewCierre | null>(null);
+export default function CerrarCaja({ caja, onCerrada, correccion = false }: CerrarCajaProps) {
+  const [preview, setPreview] = useState<PreviewCierre | null>(() =>
+    correccion ? previsualizarCorreccion(caja.id) : null
+  );
   const [efectivoContadoTexto, setEfectivoContadoTexto] = useState('');
+  const [motivo, setMotivo] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   function handleIniciarCierre() {
@@ -36,7 +45,10 @@ export default function CerrarCaja({ caja, onCerrada }: CerrarCajaProps) {
     }
 
     setError(null);
-    const cierre = cerrarCaja(efectivoContado);
+    const motivoLimpio = motivo.trim();
+    const cierre = correccion
+      ? confirmarCorreccion(caja.id, efectivoContado, motivoLimpio.length > 0 ? motivoLimpio : undefined)
+      : cerrarCaja(efectivoContado);
     onCerrada(cierre);
   }
 
@@ -56,7 +68,7 @@ export default function CerrarCaja({ caja, onCerrada }: CerrarCajaProps) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contenido}>
-      <Text style={styles.titulo}>Resumen del cierre</Text>
+      <Text style={styles.titulo}>{correccion ? 'Confirmar corrección del día' : 'Resumen del cierre'}</Text>
 
       <SummaryRow label="Base inicial" value={formatPrecio(preview.baseInicial)} />
 
@@ -109,8 +121,21 @@ export default function CerrarCaja({ caja, onCerrada }: CerrarCajaProps) {
         />
       </View>
 
+      {correccion && (
+        <View style={styles.inputContainer}>
+          <Input
+            label="¿Qué corregiste? (opcional)"
+            value={motivo}
+            onChangeText={setMotivo}
+            placeholder="Ej. se me olvidó registrar una venta"
+          />
+        </View>
+      )}
+
       <View style={styles.botonContainer}>
-        <Button onPress={handleConfirmarCierre}>Confirmar cierre</Button>
+        <Button onPress={handleConfirmarCierre}>
+          {correccion ? 'Confirmar corrección' : 'Confirmar cierre'}
+        </Button>
       </View>
     </ScrollView>
   );

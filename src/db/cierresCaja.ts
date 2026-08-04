@@ -130,28 +130,42 @@ export function getCajaDeHoy(): CierreCaja | null {
   return row ? mapRowToCierreCaja(row) : null;
 }
 
-// Calcula el cierre del día con los datos actuales, sin guardar nada.
-// Usa la misma fórmula que cerrarCaja para que la vista previa y el cierre
-// real nunca puedan quedar desincronizados.
-export function previsualizarCierre(): PreviewCierre {
-  const caja = getCajaAbiertaHoy();
-  if (!caja) {
-    throw new Error('No hay una caja abierta hoy para cerrar');
-  }
-
+// Usa la misma fórmula que cerrarCaja/confirmarCorreccion para que la vista
+// previa y el cierre real nunca puedan quedar desincronizados.
+function calcularPreview(baseInicial: number): PreviewCierre {
   const { total: totalVentas, porMetodoPago: ventasPorMetodoPago } = getTotalVendidoHoy();
   const { total: totalGastos, porMetodoPago: gastosPorMetodoPago } = getTotalGastadoHoy();
   const efectivoEsperado =
-    caja.baseInicial + ventasPorMetodoPago.efectivo - gastosPorMetodoPago.efectivo;
+    baseInicial + ventasPorMetodoPago.efectivo - gastosPorMetodoPago.efectivo;
 
   return {
-    baseInicial: caja.baseInicial,
+    baseInicial,
     totalVentas,
     ventasPorMetodoPago,
     totalGastos,
     gastosPorMetodoPago,
     efectivoEsperado,
   };
+}
+
+// Calcula el cierre del día con los datos actuales, sin guardar nada.
+export function previsualizarCierre(): PreviewCierre {
+  const caja = getCajaAbiertaHoy();
+  if (!caja) {
+    throw new Error('No hay una caja abierta hoy para cerrar');
+  }
+  return calcularPreview(caja.baseInicial);
+}
+
+// Igual que previsualizarCierre, pero para un cierre que ya está cerrado y en
+// corrección (cerrado sigue en true mientras se corrige, por eso no puede
+// buscarse con getCajaAbiertaHoy).
+export function previsualizarCorreccion(cierreId: string): PreviewCierre {
+  const cierre = getCierrePorId(cierreId);
+  if (!cierre) {
+    throw new Error('No existe el cierre a corregir');
+  }
+  return calcularPreview(cierre.baseInicial);
 }
 
 interface CalculoCierre {

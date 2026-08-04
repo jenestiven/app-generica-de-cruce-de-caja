@@ -60,6 +60,10 @@ export default function CajaScreen() {
     );
   }
 
+  if (caja.enCorreccion) {
+    return <CerrarCaja caja={caja} onCerrada={handleCerrada} correccion />;
+  }
+
   if (caja.cerrado) {
     return (
       <ResumenCierre cierre={caja} onCorregir={puedeCorregirse(caja) ? handleCorregir : undefined} />
