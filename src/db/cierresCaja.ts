@@ -19,6 +19,10 @@ interface CierreCajaRow {
   diferencia: number | null;
   utilidad_neta: number | null;
   cerrado: number;
+  en_correccion: number;
+  corregido: number;
+  fecha_correccion: string | null;
+  motivo_correccion: string | null;
   updated_at: string;
   synced_at: string | null;
 }
@@ -37,6 +41,10 @@ function mapRowToCierreCaja(row: CierreCajaRow): CierreCaja {
     diferencia: row.diferencia,
     utilidadNeta: row.utilidad_neta,
     cerrado: row.cerrado === 1,
+    enCorreccion: row.en_correccion === 1,
+    corregido: row.corregido === 1,
+    fechaCorreccion: row.fecha_correccion,
+    motivoCorreccion: row.motivo_correccion,
     updatedAt: row.updated_at,
     syncedAt: row.synced_at,
   };
@@ -74,9 +82,26 @@ export function abrirCaja(baseInicial: number): CierreCaja {
     diferencia: null,
     utilidadNeta: null,
     cerrado: false,
+    enCorreccion: false,
+    corregido: false,
+    fechaCorreccion: null,
+    motivoCorreccion: null,
     updatedAt,
     syncedAt: null,
   };
+}
+
+export function getCierrePorId(id: string): CierreCaja | null {
+  const row = db.getFirstSync<CierreCajaRow>('SELECT * FROM cierres_caja WHERE id = ? LIMIT 1', [
+    id,
+  ]);
+  return row ? mapRowToCierreCaja(row) : null;
+}
+
+// Un cierre solo puede corregirse el mismo día calendario en que se hizo
+// (comparamos "fecha", que ya es date-only, no la hora del cierre).
+export function puedeCorregirse(cierre: CierreCaja): boolean {
+  return cierre.cerrado && cierre.fecha === getFechaHoy();
 }
 
 export function getUltimaBaseUsada(): number | null {
@@ -118,22 +143,51 @@ export function previsualizarCierre(): PreviewCierre {
   };
 }
 
-export function cerrarCaja(efectivoContado: number): CierreCaja {
-  const caja = getCajaAbiertaHoy();
-  if (!caja) {
-    throw new Error('No hay una caja abierta hoy para cerrar');
-  }
+interface CalculoCierre {
+  totalVentas: number;
+  totalVentasEfectivo: number;
+  totalGastos: number;
+  totalGastosEfectivo: number;
+  efectivoEsperado: number;
+  diferencia: number;
+  utilidadNeta: number;
+}
 
-  const preview = previsualizarCierre();
-  const totalVentas = preview.totalVentas;
-  const totalGastos = preview.totalGastos;
-  const totalVentasEfectivo = preview.ventasPorMetodoPago.efectivo;
-  const totalGastosEfectivo = preview.gastosPorMetodoPago.efectivo;
-  const efectivoEsperado = preview.efectivoEsperado;
-  const diferencia = efectivoContado - efectivoEsperado;
-  const utilidadNeta = totalVentas - totalGastos;
-  const updatedAt = new Date().toISOString();
+// Misma fórmula que usan previsualizarCierre/cerrarCaja, reutilizada también
+// por confirmarCorreccion para que un cierre corregido nunca se calcule distinto.
+function calcularCierre(baseInicial: number, efectivoContado: number): CalculoCierre {
+  const { total: totalVentas, porMetodoPago: ventasPorMetodoPago } = getTotalVendidoHoy();
+  const { total: totalGastos, porMetodoPago: gastosPorMetodoPago } = getTotalGastadoHoy();
+  const totalVentasEfectivo = ventasPorMetodoPago.efectivo;
+  const totalGastosEfectivo = gastosPorMetodoPago.efectivo;
+  const efectivoEsperado = baseInicial + totalVentasEfectivo - totalGastosEfectivo;
 
+  return {
+    totalVentas,
+    totalVentasEfectivo,
+    totalGastos,
+    totalGastosEfectivo,
+    efectivoEsperado,
+    diferencia: efectivoContado - efectivoEsperado,
+    utilidadNeta: totalVentas - totalGastos,
+  };
+}
+
+interface GuardarCierreOpciones {
+  cerrado: boolean;
+  enCorreccion: boolean;
+  corregido: boolean;
+  fechaCorreccion: string | null;
+  motivoCorreccion: string | null;
+  updatedAt: string;
+}
+
+function guardarCierre(
+  cierreId: string,
+  calculo: CalculoCierre,
+  efectivoContado: number,
+  opciones: GuardarCierreOpciones
+): void {
   db.runSync(
     `UPDATE cierres_caja
      SET total_ventas = ?,
@@ -144,35 +198,106 @@ export function cerrarCaja(efectivoContado: number): CierreCaja {
          efectivo_contado = ?,
          diferencia = ?,
          utilidad_neta = ?,
-         cerrado = 1,
+         cerrado = ?,
+         en_correccion = ?,
+         corregido = ?,
+         fecha_correccion = ?,
+         motivo_correccion = ?,
          updated_at = ?,
          synced_at = NULL
      WHERE id = ?`,
     [
-      totalVentas,
-      totalVentasEfectivo,
-      totalGastos,
-      totalGastosEfectivo,
-      efectivoEsperado,
+      calculo.totalVentas,
+      calculo.totalVentasEfectivo,
+      calculo.totalGastos,
+      calculo.totalGastosEfectivo,
+      calculo.efectivoEsperado,
       efectivoContado,
-      diferencia,
-      utilidadNeta,
-      updatedAt,
-      caja.id,
+      calculo.diferencia,
+      calculo.utilidadNeta,
+      opciones.cerrado ? 1 : 0,
+      opciones.enCorreccion ? 1 : 0,
+      opciones.corregido ? 1 : 0,
+      opciones.fechaCorreccion,
+      opciones.motivoCorreccion,
+      opciones.updatedAt,
+      cierreId,
     ]
   );
+}
+
+export function cerrarCaja(efectivoContado: number): CierreCaja {
+  const caja = getCajaAbiertaHoy();
+  if (!caja) {
+    throw new Error('No hay una caja abierta hoy para cerrar');
+  }
+
+  const calculo = calcularCierre(caja.baseInicial, efectivoContado);
+  const updatedAt = new Date().toISOString();
+
+  guardarCierre(caja.id, calculo, efectivoContado, {
+    cerrado: true,
+    enCorreccion: false,
+    corregido: false,
+    fechaCorreccion: null,
+    motivoCorreccion: null,
+    updatedAt,
+  });
 
   return {
     ...caja,
-    totalVentas,
-    totalVentasEfectivo,
-    totalGastos,
-    totalGastosEfectivo,
-    efectivoEsperado,
+    ...calculo,
     efectivoContado,
-    diferencia,
-    utilidadNeta,
     cerrado: true,
+    enCorreccion: false,
+    corregido: false,
+    fechaCorreccion: null,
+    motivoCorreccion: null,
+    updatedAt,
+    syncedAt: null,
+  };
+}
+
+// Solo marca que el cierre está en corrección: no toca totales ni `cerrado`.
+export function iniciarCorreccion(cierreId: string): void {
+  db.runSync(
+    'UPDATE cierres_caja SET en_correccion = 1, updated_at = ?, synced_at = NULL WHERE id = ?',
+    [new Date().toISOString(), cierreId]
+  );
+}
+
+export function confirmarCorreccion(
+  cierreId: string,
+  efectivoContado: number,
+  motivo?: string
+): CierreCaja {
+  const cierre = getCierrePorId(cierreId);
+  if (!cierre) {
+    throw new Error('No existe el cierre a corregir');
+  }
+
+  const calculo = calcularCierre(cierre.baseInicial, efectivoContado);
+  const updatedAt = new Date().toISOString();
+  const motivoCorreccion = motivo ?? null;
+
+  guardarCierre(cierreId, calculo, efectivoContado, {
+    cerrado: true,
+    enCorreccion: false,
+    corregido: true,
+    fechaCorreccion: updatedAt,
+    motivoCorreccion,
+    updatedAt,
+  });
+
+  return {
+    ...cierre,
+    ...calculo,
+    efectivoContado,
+    cerrado: true,
+    enCorreccion: false,
+    corregido: true,
+    fechaCorreccion: updatedAt,
+    motivoCorreccion,
     updatedAt,
     syncedAt: null,
   };

@@ -13,6 +13,10 @@ export interface CierreCaja {
   diferencia: number | null;
   utilidadNeta: number | null;
   cerrado: boolean;
+  enCorreccion: boolean;
+  corregido: boolean;
+  fechaCorreccion: string | null;
+  motivoCorreccion: string | null;
   updatedAt: string;
   syncedAt: string | null;
 }

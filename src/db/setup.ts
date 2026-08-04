@@ -76,6 +76,10 @@ const COLUMNAS_ARQUEO_CIERRES_CAJA: Array<{ nombre: string; definicion: string }
   { nombre: 'efectivo_contado', definicion: 'REAL' },
   { nombre: 'diferencia', definicion: 'REAL' },
   { nombre: 'utilidad_neta', definicion: 'REAL' },
+  { nombre: 'en_correccion', definicion: 'INTEGER NOT NULL DEFAULT 0' },
+  { nombre: 'corregido', definicion: 'INTEGER NOT NULL DEFAULT 0' },
+  { nombre: 'fecha_correccion', definicion: 'TEXT' },
+  { nombre: 'motivo_correccion', definicion: 'TEXT' },
 ];
 
 // SQLite no soporta "ADD COLUMN IF NOT EXISTS": hay que revisar las columnas
