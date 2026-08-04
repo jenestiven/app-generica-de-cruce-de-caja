@@ -104,6 +104,17 @@ export function puedeCorregirse(cierre: CierreCaja): boolean {
   return cierre.cerrado && cierre.fecha === getFechaHoy();
 }
 
+// Vender y Gastos usan esto para decidir si el día sigue habilitado para
+// registrar: caja abierta, o en corrección mientras la fecha del cierre
+// sigue siendo hoy (misma comparación que puedeCorregirse). Si en_correccion
+// quedó activo pero ya cruzó la medianoche, se trata como cerrado.
+export function puedeRegistrarHoy(cierre: CierreCaja): boolean {
+  if (!cierre.cerrado) {
+    return true;
+  }
+  return cierre.enCorreccion && cierre.fecha === getFechaHoy();
+}
+
 export function getUltimaBaseUsada(): number | null {
   const row = db.getFirstSync<{ base_inicial: number }>(
     'SELECT base_inicial FROM cierres_caja ORDER BY fecha DESC LIMIT 1'

@@ -4,7 +4,7 @@ import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 
 import Card from '../../components/ui/Card';
 import ProductoImagen from '../../components/ui/ProductoImagen';
-import { getCajaDeHoy } from '../../db/cierresCaja';
+import { getCajaDeHoy, puedeRegistrarHoy } from '../../db/cierresCaja';
 import { getProductos } from '../../db/productos';
 import { crearVenta, getTotalVendidoHoy } from '../../db/ventas';
 import { colors } from '../../theme/colors';
@@ -100,7 +100,7 @@ export default function VenderScreen() {
     return <AbrirCaja onCajaAbierta={handleCajaAbierta} />;
   }
 
-  if (caja.cerrado) {
+  if (!puedeRegistrarHoy(caja)) {
     return <ResumenCierre cierre={caja} nota="La caja de hoy ya está cerrada. No se pueden registrar más ventas." />;
   }
 

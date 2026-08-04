@@ -3,7 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 import Card from '../../components/ui/Card';
-import { getCajaDeHoy } from '../../db/cierresCaja';
+import { getCajaDeHoy, puedeRegistrarHoy } from '../../db/cierresCaja';
 import { crearGasto, getGastosDeHoy, getTotalGastadoHoy } from '../../db/gastos';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -55,7 +55,7 @@ export default function GastosScreen() {
     return <AbrirCaja onCajaAbierta={handleCajaAbierta} />;
   }
 
-  if (caja.cerrado) {
+  if (!puedeRegistrarHoy(caja)) {
     return <ResumenCierre cierre={caja} nota="La caja de hoy ya está cerrada. No se pueden registrar más gastos." />;
   }
 
