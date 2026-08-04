@@ -61,6 +61,11 @@ export function initDatabase(): void {
       updated_at TEXT NOT NULL,
       synced_at TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS config (
+      key TEXT PRIMARY KEY NOT NULL,
+      value TEXT NOT NULL
+    );
   `);
 
   migrarColumnasCierresCaja();
