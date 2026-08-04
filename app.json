@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Sazón y Caja",
+    "slug": "sazonycaja",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,7 +17,12 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.jhonexpo.mobile"
+      "package": "com.jhonexpo.sazonycaja",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,7 +33,10 @@
       "expo-notifications"
     ],
     "extra": {
-      "mostrarHerramientasDev": true
+      "mostrarHerramientasDev": false,
+      "eas": {
+        "projectId": "4836b765-10fc-443b-bc08-19663e2a16a4"
+      }
     }
   }
 }
