@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import Constants from 'expo-constants';
 import {
   Alert,
   Modal,
@@ -101,6 +102,8 @@ export default function MenuScreen() {
   }
 
   const secciones = agruparPorCategoria(productos);
+  const mostrarHerramientasDev =
+    __DEV__ && Constants.expoConfig?.extra?.mostrarHerramientasDev === true;
 
   return (
     <View style={styles.container}>
@@ -109,7 +112,7 @@ export default function MenuScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listaContenido}
         ListHeaderComponent={
-          __DEV__ ? (
+          mostrarHerramientasDev ? (
             <View style={styles.devContainer}>
               <Button variant="secondary" onPress={handleReiniciarDatos}>
                 Reiniciar datos de prueba

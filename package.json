@@ -37,7 +37,9 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "check:prod-flags": "node scripts/check-prod-flags.js",
+    "build:production": "npm run check:prod-flags && eas build --platform android --profile production"
   },
   "private": true
 }

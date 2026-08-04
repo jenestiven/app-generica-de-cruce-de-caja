@@ -11,8 +11,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundColor": "#FF7A1A",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
@@ -26,6 +26,9 @@
       "expo-sqlite",
       "expo-sharing",
       "expo-notifications"
-    ]
+    ],
+    "extra": {
+      "mostrarHerramientasDev": true
+    }
   }
 }
